@@ -1,0 +1,30 @@
+{
+  "name": "bank-account-complex-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LiudmilaMashkina/bank-account-complex-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LiudmilaMashkina/bank-account-complex-api/issues"
+  },
+  "homepage": "https://github.com/LiudmilaMashkina/bank-account-complex-api#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "morgan": "^1.9.0",
+    "uuid": "^3.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.3"
+  }
+}
