@@ -1,5 +1,5 @@
 const model = require('../models/account')
-//const file = path.join(__dirname, 'db.json')
+//]]const file = path.join(__dirname, 'db.json')
 
 function getAll (req, res, next) {
     // const contents = fs.readFileSync(file, 'utf-8')
@@ -55,4 +55,4 @@ function remove(req, res, next) {
   }
 }
 
-module.exports = { getAll, getOne, update, remove, create };
+module.exports = { getAll, getOne, remove, update, create };
