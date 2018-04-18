@@ -12,7 +12,7 @@ router.delete('/:id', ctrl.remove);
 // TRANSACTIONS //
 
 router.get('/:id/transactions', ctrl.getAllTransactions);
-
+router.post('/:id', ctrl.createTransaction);
 
 
 module.exports = router;

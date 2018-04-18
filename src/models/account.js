@@ -97,12 +97,77 @@ function getAllTransactions(id) {
         return { error: 'Account Not Found'};
 }
 
+function createTransaction(id, body) {
+    const errors = [];
+
+    const title = body.title;
+    const amount = body.amount;
+    const pending = body.pending;
+
+    const contents = fs.readFileSync(file, 'utf-8');
+    const accounts = JSON.parse(contents);
+    const account = accounts.find(account => account.id === id);
+    
+    let response;
+    if (account) {
+        if (!title) {
+            errors.push('Title is required');
+            response = { errors };
+        } 
+        if (!amount) {
+            errors.push('Amount is required');
+            response = { errors };
+        }
+        if (!pending) {
+            errors.push('Pending is required');
+            response = { errors };
+        }
+        else {
+            const transaction = { id: uuid(), title, amount, pending: true };
+
+            account.transactions.push(transaction.id);
+            const json = JSON.stringify(accounts);
+            fs.writeFileSync(file, json);
+
+            const transactions_contents = fs.readFileSync(transactions_file, 'utf-8');
+            const transactions = JSON.parse(transactions_contents);
+            transactions.push(transaction);
+
+            const tr_json = JSON.stringify(transactions);
+            fs.writeFileSync(transactions_file, tr_json);
+
+            response = transaction;
+        }
+    }
+    else {
+        errors.push('Account not found');
+        response = { errors };
+    }
+
+    return response
+}
+
+// ID: (You Choose) A unique id that represents the transaction. Created automatically.
+// Title: (String) A title for the transaction. Cannot be more than 8 characters. Required.
+// Amount: (Number) A positive or negative number depending on the type of transaction. Required.
+// Pending: (Boolean) A true/false value for whether or not the transaction is pending. Required. Defaults to true.
+
+
+///// helper funcs
 function getArrayOfTransactions(arr_ids) {
     const contents = fs.readFileSync(transactions_file, 'utf-8');
     const transactions = JSON.parse(contents);
+
     const filteredTransactions = transactions.filter(transaction => arr_ids.includes(transaction.id));
 
     return filteredTransactions;
 }
 
-module.exports = { getAll, getOne, remove, update, create, getAllTransactions };
+function findAccount(id) {
+    const contents = fs.readFileSync(file, 'utf-8');
+    const accounts = JSON.parse(contents);
+
+    return accounts.find(account => account.id === id);
+}
+
+module.exports = { getAll, getOne, remove, update, create, getAllTransactions, createTransaction };

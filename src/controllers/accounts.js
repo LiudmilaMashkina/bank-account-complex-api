@@ -59,4 +59,14 @@ function getAllTransactions(req, res, next) {
     res.status(200).json({ data: transactions })
 }
 
-module.exports = { getAll, getOne, remove, update, create, getAllTransactions };
+function createTransaction(req, res, next) {
+    const transaction = model.createTransaction(req.params.id, req.body);
+
+    if (transaction.errors) {
+        return next({ status: 400, message: `Could not create, no inspiration`, errors: transaction.errors });
+    }
+
+    res.status(201).json({ data: transaction });
+}
+
+module.exports = { getAll, getOne, remove, update, create, getAllTransactions, createTransaction };
