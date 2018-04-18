@@ -8,5 +8,11 @@ router.post('/', ctrl.create);
 router.put('/:id', ctrl.update);
 router.delete('/:id', ctrl.remove);
 
+//////////////////
+// TRANSACTIONS //
+
+router.get('/:id/transactions', ctrl.getAllTransactions);
+
+
 
 module.exports = router;

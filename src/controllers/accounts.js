@@ -1,10 +1,6 @@
 const model = require('../models/account')
-//]]const file = path.join(__dirname, 'db.json')
 
 function getAll (req, res, next) {
-    // const contents = fs.readFileSync(file, 'utf-8')
-    // const accounts = JSON.parse(contents)
-
     const limit = req.query.limit
     const data = model.getAll(limit)
     res.status(200).json({ data })
@@ -55,4 +51,12 @@ function remove(req, res, next) {
   }
 }
 
-module.exports = { getAll, getOne, remove, update, create };
+//////////////////
+// TRANSACTIONS //
+
+function getAllTransactions(req, res, next) {
+    const transactions = model.getAllTransactions(req.params.id)
+    res.status(200).json({ data: transactions })
+}
+
+module.exports = { getAll, getOne, remove, update, create, getAllTransactions };

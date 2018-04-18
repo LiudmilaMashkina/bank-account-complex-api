@@ -12,6 +12,7 @@ const accountsRoutes = require('./src/routes/accounts')
 app.use('/accounts', accountsRoutes)
 
 app.use((err, req, res, next) => {
+    console.log(err)
     const status = err.status || 500
     res.status(status).json({ error: err })
 })

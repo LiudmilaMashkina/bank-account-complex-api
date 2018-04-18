@@ -2,6 +2,7 @@ const uuid = require('uuid/v4')
 const fs = require('fs')
 const path = require('path')
 const file = path.join(__dirname, 'accounts_data.json')
+const transactions_file = path.join(__dirname, 'transactions_data.json')
 
 function getAll (limit) {
     const contents = fs.readFileSync(file, 'utf-8')
@@ -48,12 +49,6 @@ function create (body) {
     return response
 }
 
-// ID: (You Choose) A unique id that represents the account. Created automatically.
-// Name: (String) Name of the account. Required.
-// Bank Name: (String) Name of the bank the account is associated with. Required.
-// Description: (String) A description of the account. Required.
-// Transactions: (Array) An array of transactions.
-
 function update(name, id) {
     const contents = fs.readFileSync(file, 'utf-8')
     const accounts = JSON.parse(contents)
@@ -71,20 +66,43 @@ function update(name, id) {
 }
 
 function remove(id) {
-    const contents = fs.readFileSync(file, 'utf-8')
-    const accounts = JSON.parse(contents)
+    const contents = fs.readFileSync(file, 'utf-8');
+    const accounts = JSON.parse(contents);
     const account = accounts.find(account => account.id === id);
 
     if (account) {
         const index = accounts.indexOf(account);
         accounts.splice(index, 1);
-        const json = JSON.stringify(accounts)
-        fs.writeFileSync(file, json)
+        const json = JSON.stringify(accounts);
+        fs.writeFileSync(file, json);
         return {data: account};
     }
     else
         return {error: 'Account Not Found'};
 }
 
+//////////////////
+// TRANSACTIONS //
 
-module.exports = { getAll, getOne, remove, update, create };
+function getAllTransactions(id) {
+    const contents = fs.readFileSync(file, 'utf-8');
+    const accounts = JSON.parse(contents);
+    const account = accounts.find(account => account.id === id);
+
+    if (account) {
+        const transactions = getArrayOfTransactions(account.transactions);
+        return { data: transactions };
+    }
+    else
+        return { error: 'Account Not Found'};
+}
+
+function getArrayOfTransactions(arr_ids) {
+    const contents = fs.readFileSync(transactions_file, 'utf-8');
+    const transactions = JSON.parse(contents);
+    const filteredTransactions = transactions.filter(transaction => arr_ids.includes(transaction.id));
+
+    return filteredTransactions;
+}
+
+module.exports = { getAll, getOne, remove, update, create, getAllTransactions };
