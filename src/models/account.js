@@ -7,8 +7,8 @@ const transactions_file = path.join(__dirname, 'transactions_data.json')
 function getAll (limit) {
     const contents = fs.readFileSync(file, 'utf-8')
     const accounts = JSON.parse(contents)
-    return { accounts }
-  //return limit ? accounts.slice(0, limit) : accounts
+    //return { accounts }
+    return limit ? accounts.slice(0, limit) : accounts;
 }
 
 function getOne(id){
@@ -85,9 +85,7 @@ function remove(id) {
 // TRANSACTIONS //
 
 function getAllTransactions(id) {
-    const contents = fs.readFileSync(file, 'utf-8');
-    const accounts = JSON.parse(contents);
-    const account = accounts.find(account => account.id === id);
+    const account = findAccount(id);
 
     if (account) {
         const transactions = getArrayOfTransactions(account.transactions);
@@ -95,6 +93,17 @@ function getAllTransactions(id) {
     }
     else
         return { error: 'Account Not Found'};
+}
+
+function getOneTransaction(id, trid) {
+    console.log('MODEL');
+    const account = findAccount(id);
+    if (account) {
+        const transactions = getArrayOfTransactions(account.transactions);
+        const transaction = transactions.find(transaction => transaction.id === trid)
+        return { data: transaction };
+    }
+    else return { error: 'Account Not Found'};
 }
 
 function createTransaction(id, body) {
@@ -125,16 +134,11 @@ function createTransaction(id, body) {
         else {
             const transaction = { id: uuid(), title, amount, pending: true };
 
+            writeTransaction(transaction);
+
             account.transactions.push(transaction.id);
             const json = JSON.stringify(accounts);
             fs.writeFileSync(file, json);
-
-            const transactions_contents = fs.readFileSync(transactions_file, 'utf-8');
-            const transactions = JSON.parse(transactions_contents);
-            transactions.push(transaction);
-
-            const tr_json = JSON.stringify(transactions);
-            fs.writeFileSync(transactions_file, tr_json);
 
             response = transaction;
         }
@@ -147,13 +151,16 @@ function createTransaction(id, body) {
     return response
 }
 
-// ID: (You Choose) A unique id that represents the transaction. Created automatically.
-// Title: (String) A title for the transaction. Cannot be more than 8 characters. Required.
-// Amount: (Number) A positive or negative number depending on the type of transaction. Required.
-// Pending: (Boolean) A true/false value for whether or not the transaction is pending. Required. Defaults to true.
-
-
 ///// helper funcs
+function writeTransaction( transaction ) {
+    const transactions_contents = fs.readFileSync(transactions_file, 'utf-8');
+    const transactions = JSON.parse(transactions_contents);
+    transactions.push(transaction);
+
+    const tr_json = JSON.stringify(transactions);
+    fs.writeFileSync(transactions_file, tr_json);
+}
+
 function getArrayOfTransactions(arr_ids) {
     const contents = fs.readFileSync(transactions_file, 'utf-8');
     const transactions = JSON.parse(contents);
@@ -170,4 +177,4 @@ function findAccount(id) {
     return accounts.find(account => account.id === id);
 }
 
-module.exports = { getAll, getOne, remove, update, create, getAllTransactions, createTransaction };
+module.exports = { getAll, getOne, remove, update, create, getAllTransactions, createTransaction, getOneTransaction };
