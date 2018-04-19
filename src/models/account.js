@@ -2,12 +2,11 @@ const uuid = require('uuid/v4')
 const fs = require('fs')
 const path = require('path')
 const file = path.join(__dirname, 'accounts_data.json')
-const transactions_file = path.join(__dirname, 'transactions_data.json')
+const transactionsFile = path.join(__dirname, 'transactions_data.json')
 
 function getAll (limit) {
     const contents = fs.readFileSync(file, 'utf-8')
     const accounts = JSON.parse(contents)
-    //return { accounts }
     return limit ? accounts.slice(0, limit) : accounts;
 }
 
@@ -96,12 +95,12 @@ function getAllTransactions(id) {
 }
 
 function getOneTransaction(id, trid) {
-    console.log('MODEL');
     const account = findAccount(id);
     if (account) {
         const transactions = getArrayOfTransactions(account.transactions);
-        const transaction = transactions.find(transaction => transaction.id === trid)
-        return { data: transaction };
+        const transaction = transactions.find(transaction => transaction.id === trid);
+        if (transaction) return { data: transaction };
+        else return { error: 'Transaction Not Found'};
     }
     else return { error: 'Account Not Found'};
 }
@@ -151,18 +150,87 @@ function createTransaction(id, body) {
     return response
 }
 
+function updateTransaction(id, trid, body) {
+    const account = findAccount(id);
+
+    if (account) {
+        const transactionInAccount = account.transactions.find(transaction => transaction === trid);
+        
+        if (transactionInAccount) {
+            const transactionsContents = fs.readFileSync(transactionsFile, 'utf-8');
+            const allTransactions = JSON.parse(transactionsContents);
+            const transaction = allTransactions.find(transaction => transaction.id === trid);
+            
+            if (transaction) {
+                // const title = body.title;
+                // const amount = body.amount;
+                // const pending = body.pending;
+
+                // if (title) transaction.title = title;
+                // if (amount) transaction.amount = amount;
+                // if (pending) transaction.pending = pending;
+
+                updateTransactionProps(transaction, body.title, body.amount, body.pending);
+
+                const trJSON = JSON.stringify(allTransactions);
+                fs.writeFileSync(transactionsFile, trJSON);
+
+                return { data: transaction };
+            }
+            else return { error: 'Transaction Not Found in Transactions'};
+        }
+        else return { error: 'Transaction Not Found in the Account'};
+    }
+    else return { error: 'Account Not Found'};
+}
+
+function removeTransaction(id, trid) {
+    const contents = fs.readFileSync(file, 'utf-8');
+    const accounts = JSON.parse(contents);
+    const account = accounts.find(account => account.id === id);
+
+    if (account) {
+        const transactionInAccount = account.transactions.find(transaction => transaction === trid);
+        
+        if (transactionInAccount) {
+            const transactionsContents = fs.readFileSync(transactionsFile, 'utf-8');
+            const allTransactions = JSON.parse(transactionsContents);
+            const transaction = allTransactions.find(transaction => transaction.id === trid);
+
+            if (transaction) {
+                const trIndex = account.transactions.indexOf(transactionInAccount);
+                account.transactions.splice(trIndex, 1);
+                
+                const toAccounts = JSON.stringify(accounts);
+                fs.writeFileSync(file, toAccounts);
+
+                const indexJSON = allTransactions.indexOf(transactionInAccount);
+                allTransactions.splice(indexJSON, 1);
+
+                const trJSON = JSON.stringify(allTransactions);
+                fs.writeFileSync(transactionsFile, trJSON);
+
+                return { data: transaction };
+            }
+            else return { error: 'Transaction Not Found in Transactions'};
+        }
+        else return { error: 'Transaction Not Found in the Account'};
+    }
+    else return { error: 'Account Not Found'};
+}
+
 ///// helper funcs
 function writeTransaction( transaction ) {
-    const transactions_contents = fs.readFileSync(transactions_file, 'utf-8');
+    const transactions_contents = fs.readFileSync(transactionsFile, 'utf-8');
     const transactions = JSON.parse(transactions_contents);
     transactions.push(transaction);
 
     const tr_json = JSON.stringify(transactions);
-    fs.writeFileSync(transactions_file, tr_json);
+    fs.writeFileSync(transactionsFile, tr_json);
 }
 
 function getArrayOfTransactions(arr_ids) {
-    const contents = fs.readFileSync(transactions_file, 'utf-8');
+    const contents = fs.readFileSync(transactionsFile, 'utf-8');
     const transactions = JSON.parse(contents);
 
     const filteredTransactions = transactions.filter(transaction => arr_ids.includes(transaction.id));
@@ -177,4 +245,10 @@ function findAccount(id) {
     return accounts.find(account => account.id === id);
 }
 
-module.exports = { getAll, getOne, remove, update, create, getAllTransactions, createTransaction, getOneTransaction };
+function updateTransactionProps(transaction, title, amount, pending) {
+    if (title) transaction.title = title;
+    if (amount) transaction.amount = amount;
+    if (pending) transaction.pending = pending;
+}
+
+module.exports = { getAll, getOne, remove, update, create, getAllTransactions, createTransaction, getOneTransaction, updateTransaction, removeTransaction };

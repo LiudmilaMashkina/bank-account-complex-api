@@ -60,7 +60,6 @@ function getAllTransactions(req, res, next) {
 }
 
 function getOneTransaction(req, res, next) {
-    console.log('CONTROLLER');
     const transaction = model.getOneTransaction(req.params.id, req.params.trid);
 
     if(transaction.data){
@@ -81,4 +80,26 @@ function createTransaction(req, res, next) {
     res.status(201).json({ data: transaction });
 }
 
-module.exports = { getAll, getOne, remove, update, create, getAllTransactions, createTransaction, getOneTransaction };
+function updateTransaction(req, res, next) {
+    const transaction = model.updateTransaction(req.params.id, req.params.trid, req.body);
+
+    if(transaction.data){
+        return res.status(200).send({ data: transaction.data })
+    }
+    else if(transaction.error){
+        return next({ status: 404, message: transaction.error })
+    }
+}
+
+function removeTransaction(req, res, next) {
+    const transaction = model.removeTransaction(req.params.id, req.params.trid);
+
+    if(transaction.data){
+        return res.status(200).send({ data: transaction.data })
+    }
+    else if(transaction.error){
+        return next({ status: 404, message: transaction.error })
+    }
+}
+
+module.exports = { getAll, getOne, remove, update, create, getAllTransactions, createTransaction, getOneTransaction, updateTransaction, removeTransaction };
